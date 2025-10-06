@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latihan Hiragana & Katakana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+    
+    <!-- Page 1: Pilih Jenis -->
+    <div id="page-select-type" class="container mx-auto px-4 py-16">
+        <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+            <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">Latihan Huruf Jepang</h1>
+            <p class="text-center text-gray-600 mb-8">Pilih jenis huruf yang ingin kamu pelajari:</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <button onclick="selectType('hiragana')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-12 px-8 rounded-xl transition duration-300 transform hover:scale-105">
+                    <div class="text-5xl mb-4">あ</div>
+                    <div class="text-2xl">Hiragana</div>
+                </button>
+                <button onclick="selectType('katakana')" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-12 px-8 rounded-xl transition duration-300 transform hover:scale-105">
+                    <div class="text-5xl mb-4">ア</div>
+                    <div class="text-2xl">Katakana</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 2: Pilih Huruf -->
+    <div id="page-select-chars" class="container mx-auto px-4 py-16 hidden">
+        <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+            <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">Pilih Huruf untuk Latihan</h2>
+            <p class="text-center text-gray-600 mb-8">Klik grup untuk memilih satu baris, atau centang manual (minimal 5):</p>
+            
+            <div id="char-selection" class="space-y-6 mb-8">
+                <!-- Will be populated by JavaScript -->
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <button onclick="backToTypeSelection()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+                    ← Kembali
+                </button>
+                <button onclick="startQuiz()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
+                    Mulai Latihan →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 3: Quiz -->
+    <div id="page-quiz" class="container mx-auto px-4 py-16 hidden">
+        <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+            <div class="flex justify-between items-center mb-8">
+                <div class="text-lg font-semibold text-gray-700">
+                    Soal <span id="current-question">1</span> / <span id="total-questions">10</span>
+                </div>
+                <div class="text-lg font-semibold text-blue-600">
+                    ⏱️ <span id="timer">00:00</span>
+                </div>
+            </div>
+            
+            <div class="text-center mb-8">
+                <div class="text-8xl font-bold mb-8 text-gray-800" id="question-char">あ</div>
+                <p class="text-xl text-gray-600 mb-6">Bagaimana cara membaca huruf ini?</p>
+            </div>
+            
+            <div id="answer-options" class="grid grid-cols-2 gap-4">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 4: Results -->
+    <div id="page-results" class="container mx-auto px-4 py-16 hidden">
+        <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+            <h2 class="text-4xl font-bold text-center mb-8 text-gray-800">Hasil Latihan</h2>
+            
+            <div class="bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl p-8 mb-8">
+                <div class="text-center mb-6">
+                    <div class="text-6xl font-bold mb-2" id="final-score">0</div>
+                    <div class="text-xl text-gray-700">Nilai Akhir</div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-6 text-center">
+                    <div>
+                        <div class="text-3xl font-bold text-green-600" id="correct-answers">0</div>
+                        <div class="text-gray-600">Benar</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-red-600" id="wrong-answers">0</div>
+                        <div class="text-gray-600">Salah</div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-6">
+                    <div class="text-2xl font-bold text-blue-600" id="time-taken">00:00</div>
+                    <div class="text-gray-600">Waktu yang Dibutuhkan</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button onclick="restartQuiz()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
+                    Ulangi Latihan
+                </button>
+                <button onclick="backToStart()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
+                    Kembali ke Awal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const hiraganaGroups = [
+            { name: 'Vokal (A)', chars: { 'a': 'あ', 'i': 'い', 'u': 'う', 'e': 'え', 'o': 'お' } },
+            { name: 'K', chars: { 'ka': 'か', 'ki': 'き', 'ku': 'く', 'ke': 'け', 'ko': 'こ' } },
+            { name: 'S', chars: { 'sa': 'さ', 'shi': 'し', 'su': 'す', 'se': 'せ', 'so': 'そ' } },
+            { name: 'T', chars: { 'ta': 'た', 'chi': 'ち', 'tsu': 'つ', 'te': 'て', 'to': 'と' } },
+            { name: 'N', chars: { 'na': 'な', 'ni': 'に', 'nu': 'ぬ', 'ne': 'ね', 'no': 'の' } },
+            { name: 'H', chars: { 'ha': 'は', 'hi': 'ひ', 'fu': 'ふ', 'he': 'へ', 'ho': 'ほ' } },
+            { name: 'M', chars: { 'ma': 'ま', 'mi': 'み', 'mu': 'む', 'me': 'め', 'mo': 'も' } },
+            { name: 'Y', chars: { 'ya': 'や', 'yu': 'ゆ', 'yo': 'よ' } },
+            { name: 'R', chars: { 'ra': 'ら', 'ri': 'り', 'ru': 'る', 're': 'れ', 'ro': 'ろ' } },
+            { name: 'W/N', chars: { 'wa': 'わ', 'wo': 'を', 'n': 'ん' } }
+        ];
+
+        const katakanaGroups = [
+            { name: 'Vokal (A)', chars: { 'a': 'ア', 'i': 'イ', 'u': 'ウ', 'e': 'エ', 'o': 'オ' } },
+            { name: 'K', chars: { 'ka': 'カ', 'ki': 'キ', 'ku': 'ク', 'ke': 'ケ', 'ko': 'コ' } },
+            { name: 'S', chars: { 'sa': 'サ', 'shi': 'シ', 'su': 'ス', 'se': 'セ', 'so': 'ソ' } },
+            { name: 'T', chars: { 'ta': 'タ', 'chi': 'チ', 'tsu': 'ツ', 'te': 'テ', 'to': 'ト' } },
+            { name: 'N', chars: { 'na': 'ナ', 'ni': 'ニ', 'nu': 'ヌ', 'ne': 'ネ', 'no': 'ノ' } },
+            { name: 'H', chars: { 'ha': 'ハ', 'hi': 'ヒ', 'fu': 'フ', 'he': 'ヘ', 'ho': 'ホ' } },
+            { name: 'M', chars: { 'ma': 'マ', 'mi': 'ミ', 'mu': 'ム', 'me': 'メ', 'mo': 'モ' } },
+            { name: 'Y', chars: { 'ya': 'ヤ', 'yu': 'ユ', 'yo': 'ヨ' } },
+            { name: 'R', chars: { 'ra': 'ラ', 'ri': 'リ', 'ru': 'ル', 're': 'レ', 'ro': 'ロ' } },
+            { name: 'W/N', chars: { 'wa': 'ワ', 'wo': 'ヲ', 'n': 'ン' } }
+        ];
+
+        const hiraganaChars = {};
+        hiraganaGroups.forEach(g => Object.assign(hiraganaChars, g.chars));
+        
+        const katakanaChars = {};
+        katakanaGroups.forEach(g => Object.assign(katakanaChars, g.chars));
+
+        let selectedType = '';
+        let selectedChars = {};
+        let quizData = [];
+        let currentQuestionIndex = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let startTime = 0;
+        let timerInterval = null;
+
+        function selectType(type) {
+            selectedType = type;
+            selectedChars = type === 'hiragana' ? {...hiraganaChars} : {...katakanaChars};
+            
+            $('#page-select-type').addClass('hidden');
+            $('#page-select-chars').removeClass('hidden');
+            
+            renderCharSelection();
+        }
+
+        function renderCharSelection() {
+            const charSelection = $('#char-selection');
+            charSelection.empty();
+            
+            const groups = selectedType === 'hiragana' ? hiraganaGroups : katakanaGroups;
+            
+            groups.forEach((group, groupIndex) => {
+                const groupHtml = `
+                    <div class="border-2 border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-gray-700">Baris ${group.name}</h3>
+                            <button onclick="toggleGroup(${groupIndex})" class="group-btn-${groupIndex} bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-200">
+                                Pilih Semua
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-3 sm:grid-cols-5 gap-3 group-${groupIndex}">
+                            ${Object.keys(group.chars).map(romaji => {
+                                const char = group.chars[romaji];
+                                return `
+                                    <label class="char-label relative flex items-center justify-center p-4 border-2 border-gray-300 bg-white opacity-50 rounded-lg cursor-pointer hover:shadow-lg transition duration-200">
+                                        <input type="checkbox" value="${romaji}" class="hidden char-checkbox">
+                                        <div class="text-center">
+                                            <div class="absolute top-1 right-1 text-green-600 text-xl checkmark" style="display:none;">✓</div>
+                                            <div class="text-3xl mb-2">${char}</div>
+                                            <div class="text-sm font-semibold">${romaji}</div>
+                                        </div>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+                charSelection.append(groupHtml);
+            });
+            
+            $('.char-checkbox').change(function() {
+                const label = $(this).parent();
+                if ($(this).is(':checked')) {
+                    label.removeClass('border-gray-300 bg-white opacity-50');
+                    label.addClass('border-blue-500 bg-blue-50');
+                    label.find('.checkmark').show();
+                } else {
+                    label.removeClass('border-blue-500 bg-blue-50');
+                    label.addClass('border-gray-300 bg-white opacity-50');
+                    label.find('.checkmark').hide();
+                }
+            });
+        }
+
+        function toggleGroup(groupIndex) {
+            const checkboxes = $(`.group-${groupIndex} .char-checkbox`);
+            const allChecked = checkboxes.filter(':checked').length === checkboxes.length;
+            
+            checkboxes.each(function() {
+                const wasChecked = $(this).is(':checked');
+                if (allChecked && wasChecked) {
+                    $(this).prop('checked', false).trigger('change');
+                } else if (!allChecked && !wasChecked) {
+                    $(this).prop('checked', true).trigger('change');
+                }
+            });
+            
+            const btn = $(`.group-btn-${groupIndex}`);
+            if (allChecked) {
+                btn.text('Pilih Semua');
+                btn.removeClass('bg-red-500 hover:bg-red-600').addClass('bg-blue-500 hover:bg-blue-600');
+            } else {
+                btn.text('Batalkan');
+                btn.removeClass('bg-blue-500 hover:bg-blue-600').addClass('bg-red-500 hover:bg-red-600');
+            }
+        }
+
+        function backToTypeSelection() {
+            $('#page-select-chars').addClass('hidden');
+            $('#page-select-type').removeClass('hidden');
+        }
+
+        function startQuiz() {
+            const checked = $('.char-checkbox:checked');
+            if (checked.length < 5) {
+                alert('Pilih minimal 5 huruf untuk latihan!');
+                return;
+            }
+            
+            quizData = [];
+            checked.each(function() {
+                const romaji = $(this).val();
+                quizData.push({
+                    char: selectedChars[romaji],
+                    correct: romaji
+                });
+            });
+            
+            quizData = shuffleArray(quizData);
+            currentQuestionIndex = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            
+            $('#page-select-chars').addClass('hidden');
+            $('#page-quiz').removeClass('hidden');
+            
+            startTime = Date.now();
+            startTimer();
+            showQuestion();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                $('#timer').text(`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
+            }, 1000);
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex >= quizData.length) {
+                endQuiz();
+                return;
+            }
+            
+            const question = quizData[currentQuestionIndex];
+            $('#current-question').text(currentQuestionIndex + 1);
+            $('#total-questions').text(quizData.length);
+            $('#question-char').text(question.char);
+            
+            const options = generateOptions(question.correct);
+            const answerOptions = $('#answer-options');
+            answerOptions.empty();
+            
+            options.forEach(option => {
+                answerOptions.append(`
+                    <button onclick="checkAnswer('${option}', '${question.correct}')" class="answer-btn bg-gray-100 hover:bg-blue-100 text-gray-800 font-bold py-6 px-4 rounded-lg transition duration-200 text-xl">
+                        ${option}
+                    </button>
+                `);
+            });
+        }
+
+        function generateOptions(correct) {
+            const allOptions = Object.keys(selectedChars);
+            const options = [correct];
+            
+            while (options.length < 4 && options.length < allOptions.length) {
+                const random = allOptions[Math.floor(Math.random() * allOptions.length)];
+                if (!options.includes(random)) {
+                    options.push(random);
+                }
+            }
+            
+            return shuffleArray(options);
+        }
+
+        function checkAnswer(selected, correct) {
+            $('.answer-btn').prop('disabled', true);
+            
+            if (selected === correct) {
+                correctCount++;
+                event.target.classList.add('bg-green-500', 'text-white');
+                event.target.classList.remove('bg-gray-100', 'text-gray-800');
+            } else {
+                wrongCount++;
+                event.target.classList.add('bg-red-500', 'text-white');
+                event.target.classList.remove('bg-gray-100', 'text-gray-800');
+                
+                $('.answer-btn').each(function() {
+                    if ($(this).text().trim() === correct) {
+                        $(this).addClass('bg-green-500 text-white');
+                        $(this).removeClass('bg-gray-100 text-gray-800');
+                    }
+                });
+            }
+            
+            setTimeout(() => {
+                currentQuestionIndex++;
+                showQuestion();
+            }, 1000);
+        }
+
+        function endQuiz() {
+            clearInterval(timerInterval);
+            
+            const totalQuestions = quizData.length;
+            const score = Math.round((correctCount / totalQuestions) * 100);
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            
+            $('#final-score').text(score);
+            $('#correct-answers').text(correctCount);
+            $('#wrong-answers').text(wrongCount);
+            $('#time-taken').text(`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
+            
+            $('#page-quiz').addClass('hidden');
+            $('#page-results').removeClass('hidden');
+        }
+
+        function restartQuiz() {
+            $('#page-results').addClass('hidden');
+            $('#page-select-chars').removeClass('hidden');
+        }
+
+        function backToStart() {
+            $('#page-results').addClass('hidden');
+            $('#page-select-type').removeClass('hidden');
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+    </script>
+</body>
+</html>
