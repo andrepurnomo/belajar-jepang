@@ -6,8 +6,9 @@
     <title>Latihan Hiragana & Katakana</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+<body class="bg-gray-100 min-h-screen">
     
     <!-- Page 1: Pilih Jenis -->
     <div id="page-select-type" class="container mx-auto px-4 py-16">
@@ -15,7 +16,7 @@
             <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">Latihan Huruf Jepang</h1>
             <p class="text-center text-gray-600 mb-8">Pilih jenis huruf yang ingin kamu pelajari:</p>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <button onclick="selectType('hiragana')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-12 px-8 rounded-xl transition duration-300 transform hover:scale-105">
                     <div class="text-5xl mb-4">あ</div>
                     <div class="text-2xl">Hiragana</div>
@@ -25,6 +26,10 @@
                     <div class="text-2xl">Katakana</div>
                 </button>
             </div>
+            
+            <button onclick="showStats()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-xl transition duration-300">
+                📊 Lihat Statistik & Progress
+            </button>
         </div>
     </div>
 
@@ -34,6 +39,18 @@
             <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">Pilih Huruf untuk Latihan</h2>
             <p class="text-center text-gray-600 mb-8">Klik grup untuk memilih satu baris, atau centang manual (minimal 5):</p>
             
+            <div id="weak-chars-banner" class="hidden bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4 mb-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg font-bold text-yellow-800">💡 Huruf yang Perlu Diperbaiki</h3>
+                        <p class="text-sm text-yellow-700" id="weak-chars-list"></p>
+                    </div>
+                    <button onclick="practiceWeakChars()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
+                        Latih Sekarang
+                    </button>
+                </div>
+            </div>
+            
             <div id="char-selection" class="space-y-6 mb-8">
                 <!-- Will be populated by JavaScript -->
             </div>
@@ -42,10 +59,35 @@
                 <button onclick="backToTypeSelection()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
                     ← Kembali
                 </button>
-                <button onclick="startQuiz()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
-                    Mulai Latihan →
+                <button onclick="showModeSelection()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
+                    Lanjut →
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Page 2.5: Pilih Mode -->
+    <div id="page-select-mode" class="container mx-auto px-4 py-16 hidden">
+        <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+            <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">Pilih Mode Latihan</h2>
+            <p class="text-center text-gray-600 mb-8">Pilih jenis latihan yang ingin kamu lakukan:</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <button onclick="startQuiz()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-12 px-8 rounded-xl transition duration-300 transform hover:scale-105">
+                    <div class="text-5xl mb-4">❓</div>
+                    <div class="text-2xl mb-2">Mode Quiz</div>
+                    <div class="text-sm opacity-90">Pilih jawaban yang benar</div>
+                </button>
+                <button onclick="startWritingMode()" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-12 px-8 rounded-xl transition duration-300 transform hover:scale-105">
+                    <div class="text-5xl mb-4">✍️</div>
+                    <div class="text-2xl mb-2">Mode Menulis</div>
+                    <div class="text-sm opacity-90">Klik huruf sesuai urutan</div>
+                </button>
+            </div>
+            
+            <button onclick="backToCharSelection()" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+                ← Kembali
+            </button>
         </div>
     </div>
 
@@ -72,12 +114,60 @@
         </div>
     </div>
 
+    <!-- Page 3.5: Writing Mode -->
+    <div id="page-writing" class="container mx-auto px-4 py-16 hidden">
+        <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+            <div class="flex justify-between items-center mb-8">
+                <div class="text-lg font-semibold text-gray-700">
+                    Soal <span id="writing-current-question">1</span> / <span id="writing-total-questions">10</span>
+                </div>
+                <div class="text-lg font-semibold text-purple-600">
+                    ⏱️ <span id="writing-timer">00:00</span>
+                </div>
+            </div>
+            
+            <div class="text-center mb-8">
+                <p class="text-xl text-gray-600 mb-4">Tulis urutan huruf ini:</p>
+                <div class="bg-purple-50 rounded-lg p-6 mb-6">
+                    <div class="text-3xl font-bold text-purple-800" id="writing-prompt">ka ki ku ke ko</div>
+                </div>
+                
+                <div class="mb-6">
+                    <p class="text-sm text-gray-500 mb-2">Yang sudah kamu tulis:</p>
+                    <div class="bg-gray-50 rounded-lg p-4 min-h-[80px] flex items-center justify-center flex-wrap gap-2" id="writing-answer">
+                        <span class="text-gray-400 italic" id="writing-placeholder">Klik huruf di bawah...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <p class="text-sm text-gray-600 mb-3 text-center">Pilih huruf:</p>
+                <div id="writing-options" class="grid grid-cols-3 sm:grid-cols-5 gap-3">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-3">
+                <button onclick="clearWritingAnswer()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg transition duration-200">
+                    🔄 Reset
+                </button>
+                <button onclick="submitWritingAnswer()" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-8 rounded-lg transition duration-200">
+                    Kirim Jawaban
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Page 4: Results -->
     <div id="page-results" class="container mx-auto px-4 py-16 hidden">
         <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8">
             <h2 class="text-4xl font-bold text-center mb-8 text-gray-800">Hasil Latihan</h2>
             
-            <div class="bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl p-8 mb-8">
+            <div id="improvement-message" class="hidden bg-green-50 border-2 border-green-300 rounded-lg p-4 mb-6 text-center">
+                <p class="text-green-800 font-semibold text-lg"></p>
+            </div>
+            
+            <div class="bg-blue-50 rounded-xl p-8 mb-8">
                 <div class="text-center mb-6">
                     <div class="text-6xl font-bold mb-2" id="final-score">0</div>
                     <div class="text-xl text-gray-700">Nilai Akhir</div>
@@ -106,6 +196,61 @@
                 </button>
                 <button onclick="backToStart()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
                     Kembali ke Awal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 5: Statistics Dashboard -->
+    <div id="page-stats" class="container mx-auto px-4 py-16 hidden">
+        <div class="max-w-6xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-6">
+                <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">📊 Statistik & Progress</h2>
+                
+                <!-- Overview Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-blue-50 rounded-lg p-4 text-center">
+                        <div class="text-3xl font-bold text-blue-600" id="stat-total-sessions">0</div>
+                        <div class="text-sm text-gray-600">Total Sesi</div>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-4 text-center">
+                        <div class="text-3xl font-bold text-green-600" id="stat-accuracy">0%</div>
+                        <div class="text-sm text-gray-600">Akurasi</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-4 text-center">
+                        <div class="text-3xl font-bold text-purple-600" id="stat-total-time">0m</div>
+                        <div class="text-sm text-gray-600">Total Waktu</div>
+                    </div>
+                    <div class="bg-orange-50 rounded-lg p-4 text-center">
+                        <div class="text-3xl font-bold text-orange-600" id="stat-streak">0</div>
+                        <div class="text-sm text-gray-600">Streak 🔥</div>
+                    </div>
+                </div>
+                
+                <!-- Progress Chart -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold mb-4 text-gray-700">Progress 10 Sesi Terakhir</h3>
+                    <canvas id="progress-chart" height="80"></canvas>
+                </div>
+                
+                <!-- Weak Characters -->
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4 text-red-600">⚠️ Huruf yang Perlu Diperbaiki</h3>
+                        <div id="weak-chars-list-stats" class="space-y-2">
+                            <p class="text-gray-500 italic">Belum ada data</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4 text-green-600">✅ Huruf yang Sudah Dikuasai</h3>
+                        <div id="mastered-chars-list" class="space-y-2">
+                            <p class="text-gray-500 italic">Belum ada data</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="backToStart()" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
+                    ← Kembali ke Menu
                 </button>
             </div>
         </div>
@@ -152,6 +297,109 @@
         let wrongCount = 0;
         let startTime = 0;
         let timerInterval = null;
+        let currentSessionAnswers = [];
+        let progressChart = null;
+        let writingData = [];
+        let currentWritingIndex = 0;
+        let currentWritingAnswer = [];
+        let currentWritingQuestion = [];
+        let currentMode = 'quiz';
+
+        // LocalStorage functions
+        function getStats() {
+            const stats = localStorage.getItem('japaneseStats');
+            return stats ? JSON.parse(stats) : {
+                totalSessions: 0,
+                lastPlayed: null,
+                hiraganaStats: { totalAttempts: 0, correctCount: 0, charDetails: {} },
+                katakanaStats: { totalAttempts: 0, correctCount: 0, charDetails: {} },
+                sessionHistory: []
+            };
+        }
+
+        function saveStats(stats) {
+            localStorage.setItem('japaneseStats', JSON.stringify(stats));
+        }
+
+        function updateCharStats(type, romaji, isCorrect) {
+            const stats = getStats();
+            const typeStats = type === 'hiragana' ? stats.hiraganaStats : stats.katakanaStats;
+            
+            if (!typeStats.charDetails[romaji]) {
+                typeStats.charDetails[romaji] = { correct: 0, wrong: 0, lastSeen: null };
+            }
+            
+            if (isCorrect) {
+                typeStats.charDetails[romaji].correct++;
+                typeStats.correctCount++;
+            } else {
+                typeStats.charDetails[romaji].wrong++;
+            }
+            
+            typeStats.charDetails[romaji].lastSeen = new Date().toISOString().split('T')[0];
+            typeStats.totalAttempts++;
+            
+            saveStats(stats);
+        }
+
+        function getWeakChars(type, limit = 5) {
+            const stats = getStats();
+            const typeStats = type === 'hiragana' ? stats.hiraganaStats : stats.katakanaStats;
+            const charDetails = typeStats.charDetails;
+            
+            const charArray = Object.keys(charDetails)
+                .map(romaji => ({
+                    romaji,
+                    accuracy: (charDetails[romaji].correct / (charDetails[romaji].correct + charDetails[romaji].wrong)) * 100,
+                    total: charDetails[romaji].correct + charDetails[romaji].wrong
+                }))
+                .filter(char => char.total >= 3)
+                .sort((a, b) => a.accuracy - b.accuracy)
+                .slice(0, limit);
+            
+            return charArray;
+        }
+
+        function getMasteredChars(type) {
+            const stats = getStats();
+            const typeStats = type === 'hiragana' ? stats.hiraganaStats : stats.katakanaStats;
+            const charDetails = typeStats.charDetails;
+            
+            return Object.keys(charDetails)
+                .filter(romaji => {
+                    const char = charDetails[romaji];
+                    const total = char.correct + char.wrong;
+                    const accuracy = (char.correct / total) * 100;
+                    return total >= 5 && accuracy >= 90;
+                })
+                .map(romaji => ({
+                    romaji,
+                    accuracy: (charDetails[romaji].correct / (charDetails[romaji].correct + charDetails[romaji].wrong)) * 100
+                }));
+        }
+
+        function calculateStreak() {
+            const stats = getStats();
+            if (stats.sessionHistory.length === 0) return 0;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const sessions = stats.sessionHistory.map(s => s.date).sort();
+            
+            let streak = 0;
+            let currentDate = new Date(today);
+            
+            for (let i = 0; i < 365; i++) {
+                const dateStr = currentDate.toISOString().split('T')[0];
+                if (sessions.includes(dateStr)) {
+                    streak++;
+                    currentDate.setDate(currentDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+            
+            return streak;
+        }
 
         function selectType(type) {
             selectedType = type;
@@ -161,6 +409,27 @@
             $('#page-select-chars').removeClass('hidden');
             
             renderCharSelection();
+            showWeakCharsBanner();
+        }
+
+        function showWeakCharsBanner() {
+            const weakChars = getWeakChars(selectedType, 5);
+            if (weakChars.length > 0) {
+                const charsList = weakChars.map(c => `${c.romaji} (${Math.round(c.accuracy)}%)`).join(', ');
+                $('#weak-chars-list').text(charsList);
+                $('#weak-chars-banner').removeClass('hidden');
+            } else {
+                $('#weak-chars-banner').addClass('hidden');
+            }
+        }
+
+        function practiceWeakChars() {
+            $('.char-checkbox').prop('checked', false).trigger('change');
+            
+            const weakChars = getWeakChars(selectedType, 10);
+            weakChars.forEach(char => {
+                $(`.char-checkbox[value="${char.romaji}"]`).prop('checked', true).trigger('change');
+            });
         }
 
         function renderCharSelection() {
@@ -240,12 +509,25 @@
             $('#page-select-type').removeClass('hidden');
         }
 
-        function startQuiz() {
+        function showModeSelection() {
             const checked = $('.char-checkbox:checked');
             if (checked.length < 5) {
                 alert('Pilih minimal 5 huruf untuk latihan!');
                 return;
             }
+            
+            $('#page-select-chars').addClass('hidden');
+            $('#page-select-mode').removeClass('hidden');
+        }
+
+        function backToCharSelection() {
+            $('#page-select-mode').addClass('hidden');
+            $('#page-select-chars').removeClass('hidden');
+        }
+
+        function startQuiz() {
+            const checked = $('.char-checkbox:checked');
+            currentMode = 'quiz';
             
             quizData = [];
             checked.each(function() {
@@ -260,13 +542,181 @@
             currentQuestionIndex = 0;
             correctCount = 0;
             wrongCount = 0;
+            currentSessionAnswers = [];
             
-            $('#page-select-chars').addClass('hidden');
+            $('#page-select-mode').addClass('hidden');
             $('#page-quiz').removeClass('hidden');
             
             startTime = Date.now();
             startTimer();
             showQuestion();
+        }
+
+        function startWritingMode() {
+            const checked = $('.char-checkbox:checked');
+            currentMode = 'writing';
+            
+            const allRomaji = [];
+            checked.each(function() {
+                allRomaji.push($(this).val());
+            });
+            
+            writingData = generateWritingQuestions(allRomaji);
+            currentWritingIndex = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            currentSessionAnswers = [];
+            
+            $('#page-select-mode').addClass('hidden');
+            $('#page-writing').removeClass('hidden');
+            
+            startTime = Date.now();
+            startWritingTimer();
+            showWritingQuestion();
+        }
+
+        function generateWritingQuestions(allRomaji, numQuestions = 10) {
+            const questions = [];
+            const shuffled = shuffleArray(allRomaji);
+            
+            for (let i = 0; i < Math.min(numQuestions, Math.floor(allRomaji.length / 3)); i++) {
+                const sequenceLength = Math.min(3 + Math.floor(i / 3), 5);
+                const startIdx = i * 2;
+                const sequence = [];
+                
+                for (let j = 0; j < sequenceLength && startIdx + j < shuffled.length; j++) {
+                    sequence.push(shuffled[(startIdx + j) % shuffled.length]);
+                }
+                
+                if (sequence.length >= 3) {
+                    questions.push({
+                        sequence: sequence,
+                        options: shuffleArray([...new Set([...sequence, ...shuffleArray(allRomaji).slice(0, 10)])])
+                    });
+                }
+            }
+            
+            return questions.slice(0, numQuestions);
+        }
+
+        function startWritingTimer() {
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                $('#writing-timer').text(`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
+            }, 1000);
+        }
+
+        function showWritingQuestion() {
+            if (currentWritingIndex >= writingData.length) {
+                endQuiz();
+                return;
+            }
+            
+            const question = writingData[currentWritingIndex];
+            currentWritingQuestion = question.sequence;
+            currentWritingAnswer = [];
+            
+            $('#writing-current-question').text(currentWritingIndex + 1);
+            $('#writing-total-questions').text(writingData.length);
+            $('#writing-prompt').text(question.sequence.join(' '));
+            
+            $('#writing-answer').empty();
+            $('#writing-answer').append('<span class="text-gray-400 italic" id="writing-placeholder">Klik huruf di bawah...</span>');
+            
+            const optionsContainer = $('#writing-options');
+            optionsContainer.empty();
+            
+            question.options.forEach(romaji => {
+                const char = selectedChars[romaji];
+                optionsContainer.append(`
+                    <button onclick="selectWritingChar('${romaji}')" class="writing-option bg-white border-2 border-gray-300 hover:border-purple-400 hover:bg-purple-50 text-gray-800 font-bold py-6 px-4 rounded-lg transition duration-200">
+                        <div class="text-4xl">${char}</div>
+                    </button>
+                `);
+            });
+        }
+
+        function selectWritingChar(romaji) {
+            if (currentWritingAnswer.length >= currentWritingQuestion.length) {
+                return;
+            }
+            
+            currentWritingAnswer.push(romaji);
+            updateWritingAnswer();
+        }
+
+        function updateWritingAnswer(showFeedback = false) {
+            const answerContainer = $('#writing-answer');
+            answerContainer.empty();
+            
+            if (currentWritingAnswer.length === 0) {
+                answerContainer.append('<span class="text-gray-400 italic" id="writing-placeholder">Klik huruf di bawah...</span>');
+            } else {
+                currentWritingAnswer.forEach((romaji, index) => {
+                    const char = selectedChars[romaji];
+                    const isCorrect = romaji === currentWritingQuestion[index];
+                    
+                    let colorClass;
+                    if (showFeedback) {
+                        colorClass = isCorrect ? 'bg-green-100 border-green-400 text-green-800' : 'bg-red-100 border-red-400 text-red-800';
+                    } else {
+                        colorClass = 'bg-blue-50 border-blue-400 text-blue-800';
+                    }
+                    
+                    answerContainer.append(`
+                        <div class="inline-flex items-center justify-center border-2 ${colorClass} rounded-lg p-3">
+                            <div class="text-3xl">${char}</div>
+                        </div>
+                    `);
+                });
+            }
+        }
+
+        function clearWritingAnswer() {
+            currentWritingAnswer = [];
+            updateWritingAnswer();
+        }
+
+        function submitWritingAnswer() {
+            if (currentWritingAnswer.length !== currentWritingQuestion.length) {
+                alert('Lengkapi semua huruf dulu!');
+                return;
+            }
+            
+            const submitBtn = $('button:contains("Kirim Jawaban")');
+            submitBtn.prop('disabled', true);
+            submitBtn.removeClass('bg-purple-500 hover:bg-purple-600');
+            submitBtn.addClass('bg-gray-400 cursor-not-allowed');
+            
+            updateWritingAnswer(true);
+            
+            const allCorrect = currentWritingAnswer.every((romaji, index) => romaji === currentWritingQuestion[index]);
+            
+            if (allCorrect) {
+                correctCount++;
+                submitBtn.html('✅ Benar!');
+            } else {
+                wrongCount++;
+                submitBtn.html('❌ Salah!');
+            }
+            
+            currentWritingQuestion.forEach((romaji, index) => {
+                const isCorrect = currentWritingAnswer[index] === romaji;
+                updateCharStats(selectedType, romaji, isCorrect);
+                currentSessionAnswers.push({ romaji, isCorrect });
+            });
+            
+            setTimeout(() => {
+                submitBtn.prop('disabled', false);
+                submitBtn.removeClass('bg-gray-400 cursor-not-allowed');
+                submitBtn.addClass('bg-purple-500 hover:bg-purple-600');
+                submitBtn.html('Kirim Jawaban');
+                
+                currentWritingIndex++;
+                showWritingQuestion();
+            }, 1500);
         }
 
         function startTimer() {
@@ -319,7 +769,9 @@
         function checkAnswer(selected, correct) {
             $('.answer-btn').prop('disabled', true);
             
-            if (selected === correct) {
+            const isCorrect = selected === correct;
+            
+            if (isCorrect) {
                 correctCount++;
                 event.target.classList.add('bg-green-500', 'text-white');
                 event.target.classList.remove('bg-gray-100', 'text-gray-800');
@@ -336,6 +788,9 @@
                 });
             }
             
+            updateCharStats(selectedType, correct, isCorrect);
+            currentSessionAnswers.push({ romaji: correct, isCorrect });
+            
             setTimeout(() => {
                 currentQuestionIndex++;
                 showQuestion();
@@ -345,7 +800,7 @@
         function endQuiz() {
             clearInterval(timerInterval);
             
-            const totalQuestions = quizData.length;
+            const totalQuestions = currentMode === 'writing' ? writingData.length : quizData.length;
             const score = Math.round((correctCount / totalQuestions) * 100);
             const elapsed = Math.floor((Date.now() - startTime) / 1000);
             const minutes = Math.floor(elapsed / 60);
@@ -356,8 +811,61 @@
             $('#wrong-answers').text(wrongCount);
             $('#time-taken').text(`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
             
+            saveSessionToHistory(score, elapsed);
+            showImprovementMessage(score);
+            
             $('#page-quiz').addClass('hidden');
+            $('#page-writing').addClass('hidden');
             $('#page-results').removeClass('hidden');
+        }
+
+        function saveSessionToHistory(score, timeInSeconds) {
+            const stats = getStats();
+            const today = new Date().toISOString().split('T')[0];
+            
+            stats.totalSessions++;
+            stats.lastPlayed = today;
+            
+            stats.sessionHistory.unshift({
+                date: today,
+                type: selectedType,
+                score: score,
+                time: timeInSeconds,
+                correct: correctCount,
+                wrong: wrongCount
+            });
+            
+            if (stats.sessionHistory.length > 10) {
+                stats.sessionHistory = stats.sessionHistory.slice(0, 10);
+            }
+            
+            saveStats(stats);
+        }
+
+        function showImprovementMessage(currentScore) {
+            const stats = getStats();
+            const recentSessions = stats.sessionHistory.filter(s => s.type === selectedType);
+            
+            if (recentSessions.length > 1) {
+                const lastScore = recentSessions[1].score;
+                const improvement = currentScore - lastScore;
+                
+                if (improvement > 0) {
+                    $('#improvement-message p').text(`🎉 Score kamu meningkat ${improvement}% dari sesi terakhir!`);
+                    $('#improvement-message').removeClass('hidden bg-yellow-50 border-yellow-300');
+                    $('#improvement-message').addClass('bg-green-50 border-green-300');
+                    $('#improvement-message').removeClass('hidden');
+                } else if (improvement < 0) {
+                    $('#improvement-message p').text(`💪 Jangan menyerah! Terus latihan ya!`);
+                    $('#improvement-message').removeClass('hidden bg-green-50 border-green-300');
+                    $('#improvement-message').addClass('bg-yellow-50 border-yellow-300');
+                    $('#improvement-message').removeClass('hidden');
+                } else {
+                    $('#improvement-message').addClass('hidden');
+                }
+            } else {
+                $('#improvement-message').addClass('hidden');
+            }
         }
 
         function restartQuiz() {
@@ -367,7 +875,133 @@
 
         function backToStart() {
             $('#page-results').addClass('hidden');
+            $('#page-stats').addClass('hidden');
             $('#page-select-type').removeClass('hidden');
+        }
+
+        function showStats() {
+            $('#page-select-type').addClass('hidden');
+            $('#page-stats').removeClass('hidden');
+            
+            renderStats();
+        }
+
+        function renderStats() {
+            const stats = getStats();
+            
+            $('#stat-total-sessions').text(stats.totalSessions);
+            
+            const totalAttempts = stats.hiraganaStats.totalAttempts + stats.katakanaStats.totalAttempts;
+            const totalCorrect = stats.hiraganaStats.correctCount + stats.katakanaStats.correctCount;
+            const accuracy = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
+            $('#stat-accuracy').text(accuracy + '%');
+            
+            const totalTime = stats.sessionHistory.reduce((sum, s) => sum + s.time, 0);
+            const totalMinutes = Math.floor(totalTime / 60);
+            $('#stat-total-time').text(totalMinutes + 'm');
+            
+            const streak = calculateStreak();
+            $('#stat-streak').text(streak);
+            
+            renderProgressChart(stats.sessionHistory);
+            renderWeakAndMasteredChars();
+        }
+
+        function renderProgressChart(sessionHistory) {
+            const ctx = document.getElementById('progress-chart');
+            
+            if (progressChart) {
+                progressChart.destroy();
+            }
+            
+            const sessions = sessionHistory.slice(0, 10).reverse();
+            const labels = sessions.map((s, i) => `Sesi ${i + 1}`);
+            const hiraganaData = sessions.map(s => s.type === 'hiragana' ? s.score : null);
+            const katakanaData = sessions.map(s => s.type === 'katakana' ? s.score : null);
+            
+            progressChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Hiragana',
+                            data: hiraganaData,
+                            borderColor: 'rgb(59, 130, 246)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.3,
+                            spanGaps: true
+                        },
+                        {
+                            label: 'Katakana',
+                            data: katakanaData,
+                            borderColor: 'rgb(168, 85, 247)',
+                            backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                            tension: 0.3,
+                            spanGaps: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderWeakAndMasteredChars() {
+            const hiraganaWeak = getWeakChars('hiragana', 10);
+            const katakanaWeak = getWeakChars('katakana', 10);
+            const allWeak = [...hiraganaWeak, ...katakanaWeak]
+                .sort((a, b) => a.accuracy - b.accuracy)
+                .slice(0, 5);
+            
+            const weakList = $('#weak-chars-list-stats');
+            if (allWeak.length > 0) {
+                weakList.empty();
+                allWeak.forEach(char => {
+                    weakList.append(`
+                        <div class="flex justify-between items-center bg-red-50 p-3 rounded">
+                            <span class="font-semibold">${char.romaji}</span>
+                            <span class="text-sm text-red-600">${Math.round(char.accuracy)}% akurasi</span>
+                        </div>
+                    `);
+                });
+            }
+            
+            const hiraganaGood = getMasteredChars('hiragana');
+            const katakanaGood = getMasteredChars('katakana');
+            const allGood = [...hiraganaGood, ...katakanaGood]
+                .sort((a, b) => b.accuracy - a.accuracy)
+                .slice(0, 5);
+            
+            const masteredList = $('#mastered-chars-list');
+            if (allGood.length > 0) {
+                masteredList.empty();
+                allGood.forEach(char => {
+                    masteredList.append(`
+                        <div class="flex justify-between items-center bg-green-50 p-3 rounded">
+                            <span class="font-semibold">${char.romaji}</span>
+                            <span class="text-sm text-green-600">${Math.round(char.accuracy)}% akurasi</span>
+                        </div>
+                    `);
+                });
+            }
         }
 
         function shuffleArray(array) {
