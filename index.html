@@ -3,10 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Latihan Hiragana & Katakana</title>
+    
+    <!-- Primary Meta Tags -->
+    <title>Latihan Hiragana & Katakana - Belajar Huruf Jepang Interaktif</title>
+    <meta name="title" content="Latihan Hiragana & Katakana - Belajar Huruf Jepang Interaktif">
+    <meta name="description" content="Web app gratis untuk belajar Hiragana dan Katakana dengan 3 mode latihan: Quiz, Menulis, dan Paragraph. Dilengkapi progress tracking, WPM calculator, dan statistik pembelajaran.">
+    <meta name="keywords" content="belajar hiragana, belajar katakana, latihan huruf jepang, hiragana quiz, katakana quiz, belajar bahasa jepang, hiragana typing test, katakana typing test, japanese learning app">
+    <meta name="author" content="Andre Purnomo">
+    <meta name="language" content="Indonesian">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://andrepurnomo.github.io/belajar-jepang/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://andrepurnomo.github.io/belajar-jepang/">
+    <meta property="og:title" content="Latihan Hiragana & Katakana - Belajar Huruf Jepang Interaktif">
+    <meta property="og:description" content="Web app gratis untuk belajar Hiragana dan Katakana dengan 3 mode latihan interaktif. Track progress kamu dan tingkatkan kemampuan membaca huruf Jepang!">
+    <meta property="og:image" content="https://andrepurnomo.github.io/belajar-jepang/og-image.png">
+    <meta property="og:locale" content="id_ID">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://andrepurnomo.github.io/belajar-jepang/">
+    <meta property="twitter:title" content="Latihan Hiragana & Katakana - Belajar Huruf Jepang Interaktif">
+    <meta property="twitter:description" content="Web app gratis untuk belajar Hiragana dan Katakana dengan 3 mode latihan interaktif. Track progress kamu dan tingkatkan kemampuan membaca huruf Jepang!">
+    <meta property="twitter:image" content="https://andrepurnomo.github.io/belajar-jepang/og-image.png">
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#3B82F6">
+    <meta name="msapplication-TileColor" content="#3B82F6">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    
+    <!-- Preconnect for Performance -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://code.jquery.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Latihan Hiragana & Katakana",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "Web app gratis untuk belajar Hiragana dan Katakana dengan 3 mode latihan: Quiz, Menulis, dan Paragraph. Dilengkapi progress tracking dan statistik pembelajaran.",
+      "url": "https://andrepurnomo.github.io/belajar-jepang/",
+      "author": {
+        "@type": "Person",
+        "name": "Andre Purnomo"
+      },
+      "inLanguage": "id",
+      "featureList": "Quiz Mode, Writing Mode, Paragraph Mode, Progress Tracking, WPM Calculator, Statistics Dashboard",
+      "screenshot": "https://andrepurnomo.github.io/belajar-jepang/screenshot.png"
+    }
+    </script>
 </head>
 <body class="bg-gray-100 min-h-screen">
     
@@ -68,11 +131,11 @@
 
     <!-- Page 2.5: Pilih Mode -->
     <div id="page-select-mode" class="container mx-auto px-4 py-16 hidden">
-        <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+        <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8">
             <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">Pilih Mode Latihan</h2>
             <p class="text-center text-gray-600 mb-8">Pilih jenis latihan yang ingin kamu lakukan:</p>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <button onclick="startQuiz()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-12 px-8 rounded-xl transition duration-300 transform hover:scale-105">
                     <div class="text-5xl mb-4">❓</div>
                     <div class="text-2xl mb-2">Mode Quiz</div>
@@ -82,6 +145,11 @@
                     <div class="text-5xl mb-4">✍️</div>
                     <div class="text-2xl mb-2">Mode Menulis</div>
                     <div class="text-sm opacity-90">Klik huruf sesuai urutan</div>
+                </button>
+                <button onclick="startParagraphMode()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-12 px-8 rounded-xl transition duration-300 transform hover:scale-105">
+                    <div class="text-5xl mb-4">📖</div>
+                    <div class="text-2xl mb-2">Mode Paragraph</div>
+                    <div class="text-sm opacity-90">Ketik romanji dengan cepat</div>
                 </button>
             </div>
             
@@ -110,6 +178,55 @@
             
             <div id="answer-options" class="grid grid-cols-2 gap-4">
                 <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 3.3: Paragraph Mode -->
+    <div id="page-paragraph" class="container mx-auto px-4 py-16 hidden">
+        <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+            <div class="flex justify-between items-center mb-8">
+                <div class="text-lg font-semibold text-gray-700">
+                    Mode Paragraph
+                </div>
+                <div class="flex gap-6 text-sm font-semibold">
+                    <div class="text-green-600">⏱️ <span id="paragraph-timer">00:00</span></div>
+                    <div class="text-blue-600">🎯 <span id="paragraph-accuracy">100</span>%</div>
+                    <div class="text-purple-600">⚡ <span id="paragraph-wpm">0</span> WPM</div>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xl font-bold mb-4 text-gray-700">Baca dan ketik dalam romanji:</h3>
+                <div class="bg-gray-50 rounded-lg p-6 mb-4">
+                    <div id="paragraph-display" class="text-4xl leading-relaxed flex flex-wrap gap-2">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-lg font-semibold text-gray-700">Ketik di sini:</h3>
+                    <div class="text-sm text-gray-500">Progress: <span id="paragraph-progress">0</span>/<span id="paragraph-total">0</span></div>
+                </div>
+                <input 
+                    type="text" 
+                    id="paragraph-input" 
+                    class="w-full text-2xl p-4 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none font-mono"
+                    placeholder="Mulai ketik..."
+                    autocomplete="off"
+                    spellcheck="false"
+                />
+                <div class="mt-2 text-sm text-gray-500">
+                    💡 Tips: Ketik romanji untuk setiap huruf. Contoh: あ = a, し = shi, ち = chi
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+                    <div id="paragraph-progress-bar" class="h-full bg-green-500 transition-all duration-300" style="width: 0%"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -304,6 +421,13 @@
         let currentWritingAnswer = [];
         let currentWritingQuestion = [];
         let currentMode = 'quiz';
+        let paragraphData = [];
+        let paragraphCurrentIndex = 0;
+        let paragraphInput = '';
+        let paragraphCorrectCount = 0;
+        let paragraphWrongCount = 0;
+        let paragraphStartTime = 0;
+        let paragraphTimerInterval = null;
 
         // LocalStorage functions
         function getStats() {
@@ -523,6 +647,179 @@
         function backToCharSelection() {
             $('#page-select-mode').addClass('hidden');
             $('#page-select-chars').removeClass('hidden');
+        }
+
+        function startParagraphMode() {
+            const checked = $('.char-checkbox:checked');
+            currentMode = 'paragraph';
+            
+            const allRomaji = [];
+            checked.each(function() {
+                allRomaji.push($(this).val());
+            });
+            
+            paragraphData = generateParagraph(allRomaji, 60);
+            paragraphCurrentIndex = 0;
+            paragraphInput = '';
+            paragraphCorrectCount = 0;
+            paragraphWrongCount = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            currentSessionAnswers = [];
+            
+            $('#page-select-mode').addClass('hidden');
+            $('#page-paragraph').removeClass('hidden');
+            
+            renderParagraph();
+            setupParagraphInput();
+        }
+
+        function generateParagraph(allRomaji, length = 60) {
+            const paragraph = [];
+            for (let i = 0; i < length; i++) {
+                const randomRomaji = allRomaji[Math.floor(Math.random() * allRomaji.length)];
+                paragraph.push({
+                    romaji: randomRomaji,
+                    char: selectedChars[randomRomaji],
+                    status: 'pending'
+                });
+            }
+            return paragraph;
+        }
+
+        function renderParagraph() {
+            const container = $('#paragraph-display');
+            container.empty();
+            
+            paragraphData.forEach((item, index) => {
+                let bgColor = 'bg-gray-200';
+                let textColor = 'text-gray-800';
+                
+                if (item.status === 'correct') {
+                    bgColor = 'bg-green-100';
+                    textColor = 'text-green-800';
+                } else if (item.status === 'wrong') {
+                    bgColor = 'bg-red-100';
+                    textColor = 'text-red-800';
+                } else if (item.status === 'partial') {
+                    bgColor = 'bg-yellow-100';
+                    textColor = 'text-yellow-800';
+                } else if (index === paragraphCurrentIndex) {
+                    bgColor = 'bg-blue-100';
+                    textColor = 'text-blue-800';
+                }
+                
+                container.append(`
+                    <div class="inline-flex items-center justify-center ${bgColor} ${textColor} rounded-lg p-2 min-w-[50px]">
+                        <div class="text-4xl">${item.char}</div>
+                    </div>
+                `);
+            });
+            
+            $('#paragraph-total').text(paragraphData.length);
+            $('#paragraph-progress').text(paragraphCurrentIndex);
+            
+            const progress = (paragraphCurrentIndex / paragraphData.length) * 100;
+            $('#paragraph-progress-bar').css('width', progress + '%');
+        }
+
+        function setupParagraphInput() {
+            const input = $('#paragraph-input');
+            input.val('');
+            input.prop('disabled', false);
+            input.focus();
+            
+            paragraphStartTime = Date.now();
+            startParagraphTimer();
+            
+            input.off('input').on('input', function(e) {
+                handleParagraphInput($(this).val());
+            });
+            
+            input.off('keydown').on('keydown', function(e) {
+                if (e.key === 'Backspace' && paragraphInput.length > 0) {
+                    const currentChar = paragraphData[paragraphCurrentIndex];
+                    if (currentChar.status === 'partial') {
+                        currentChar.status = 'pending';
+                        renderParagraph();
+                    }
+                }
+            });
+        }
+
+        function handleParagraphInput(value) {
+            if (paragraphCurrentIndex >= paragraphData.length) {
+                return;
+            }
+            
+            const currentChar = paragraphData[paragraphCurrentIndex];
+            const expectedRomaji = currentChar.romaji;
+            const input = value.toLowerCase().trim();
+            
+            paragraphInput = input;
+            
+            if (expectedRomaji === input) {
+                currentChar.status = 'correct';
+                paragraphCorrectCount++;
+                paragraphCurrentIndex++;
+                $('#paragraph-input').val('');
+                paragraphInput = '';
+                renderParagraph();
+                updateParagraphMetrics();
+                
+                if (paragraphCurrentIndex >= paragraphData.length) {
+                    finishParagraph();
+                }
+            } else if (expectedRomaji.startsWith(input) && input.length > 0) {
+                currentChar.status = 'partial';
+                renderParagraph();
+            } else if (input.length > 0 && !expectedRomaji.startsWith(input)) {
+                currentChar.status = 'wrong';
+                paragraphWrongCount++;
+                renderParagraph();
+            } else {
+                currentChar.status = 'pending';
+                renderParagraph();
+            }
+        }
+
+        function startParagraphTimer() {
+            paragraphTimerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - paragraphStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                $('#paragraph-timer').text(`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
+                
+                updateParagraphMetrics();
+            }, 100);
+        }
+
+        function updateParagraphMetrics() {
+            const totalAttempts = paragraphCorrectCount + paragraphWrongCount;
+            const accuracy = totalAttempts > 0 ? Math.round((paragraphCorrectCount / totalAttempts) * 100) : 100;
+            $('#paragraph-accuracy').text(accuracy);
+            
+            const elapsedMinutes = (Date.now() - paragraphStartTime) / 1000 / 60;
+            const wpm = elapsedMinutes > 0 ? Math.round(paragraphCorrectCount / elapsedMinutes) : 0;
+            $('#paragraph-wpm').text(wpm);
+        }
+
+        function finishParagraph() {
+            clearInterval(paragraphTimerInterval);
+            $('#paragraph-input').prop('disabled', true);
+            
+            correctCount = paragraphCorrectCount;
+            wrongCount = paragraphWrongCount;
+            
+            paragraphData.forEach(item => {
+                const isCorrect = item.status === 'correct';
+                updateCharStats(selectedType, item.romaji, isCorrect);
+                currentSessionAnswers.push({ romaji: item.romaji, isCorrect });
+            });
+            
+            setTimeout(() => {
+                endQuiz();
+            }, 1500);
         }
 
         function startQuiz() {
@@ -800,9 +1097,20 @@
         function endQuiz() {
             clearInterval(timerInterval);
             
-            const totalQuestions = currentMode === 'writing' ? writingData.length : quizData.length;
+            let totalQuestions, elapsed;
+            
+            if (currentMode === 'paragraph') {
+                totalQuestions = paragraphData.length;
+                elapsed = Math.floor((Date.now() - paragraphStartTime) / 1000);
+            } else if (currentMode === 'writing') {
+                totalQuestions = writingData.length;
+                elapsed = Math.floor((Date.now() - startTime) / 1000);
+            } else {
+                totalQuestions = quizData.length;
+                elapsed = Math.floor((Date.now() - startTime) / 1000);
+            }
+            
             const score = Math.round((correctCount / totalQuestions) * 100);
-            const elapsed = Math.floor((Date.now() - startTime) / 1000);
             const minutes = Math.floor(elapsed / 60);
             const seconds = elapsed % 60;
             
@@ -816,6 +1124,7 @@
             
             $('#page-quiz').addClass('hidden');
             $('#page-writing').addClass('hidden');
+            $('#page-paragraph').addClass('hidden');
             $('#page-results').removeClass('hidden');
         }
 
