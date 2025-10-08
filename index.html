@@ -73,6 +73,14 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
     
+    <!-- Sound Effects -->
+    <audio id="success-sound" preload="auto">
+        <source src="success.wav" type="audio/wav">
+    </audio>
+    <audio id="wrong-sound" preload="auto">
+        <source src="wrong.wav" type="audio/wav">
+    </audio>
+    
     <!-- Page 1: Pilih Jenis -->
     <div id="page-select-type" class="container mx-auto px-4 py-16">
         <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8">
@@ -429,6 +437,19 @@
         let paragraphStartTime = 0;
         let paragraphTimerInterval = null;
 
+        // Sound effects
+        function playSuccessSound() {
+            const sound = document.getElementById('success-sound');
+            sound.currentTime = 0;
+            sound.play().catch(e => console.log('Audio play failed:', e));
+        }
+
+        function playWrongSound() {
+            const sound = document.getElementById('wrong-sound');
+            sound.currentTime = 0;
+            sound.play().catch(e => console.log('Audio play failed:', e));
+        }
+
         // LocalStorage functions
         function getStats() {
             const stats = localStorage.getItem('japaneseStats');
@@ -764,6 +785,7 @@
                 paragraphCurrentIndex++;
                 $('#paragraph-input').val('');
                 paragraphInput = '';
+                playSuccessSound();
                 renderParagraph();
                 updateParagraphMetrics();
                 
@@ -776,6 +798,7 @@
             } else if (input.length > 0 && !expectedRomaji.startsWith(input)) {
                 currentChar.status = 'wrong';
                 paragraphWrongCount++;
+                playWrongSound();
                 renderParagraph();
             } else {
                 currentChar.status = 'pending';
@@ -993,9 +1016,11 @@
             
             if (allCorrect) {
                 correctCount++;
+                playSuccessSound();
                 submitBtn.html('✅ Benar!');
             } else {
                 wrongCount++;
+                playWrongSound();
                 submitBtn.html('❌ Salah!');
             }
             
@@ -1070,10 +1095,12 @@
             
             if (isCorrect) {
                 correctCount++;
+                playSuccessSound();
                 event.target.classList.add('bg-green-500', 'text-white');
                 event.target.classList.remove('bg-gray-100', 'text-gray-800');
             } else {
                 wrongCount++;
+                playWrongSound();
                 event.target.classList.add('bg-red-500', 'text-white');
                 event.target.classList.remove('bg-gray-100', 'text-gray-800');
                 
