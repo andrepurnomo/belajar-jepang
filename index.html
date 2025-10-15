@@ -87,7 +87,7 @@
             <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">Latihan Huruf Jepang</h1>
             <p class="text-center text-gray-600 mb-8">Pilih jenis huruf yang ingin kamu pelajari:</p>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <button onclick="selectType('hiragana')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-12 px-8 rounded-xl transition duration-300 transform hover:scale-105">
                     <div class="text-5xl mb-4">あ</div>
                     <div class="text-2xl">Hiragana</div>
@@ -95,6 +95,10 @@
                 <button onclick="selectType('katakana')" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-12 px-8 rounded-xl transition duration-300 transform hover:scale-105">
                     <div class="text-5xl mb-4">ア</div>
                     <div class="text-2xl">Katakana</div>
+                </button>
+                <button onclick="selectType('kanji')" class="bg-red-500 hover:bg-red-600 text-white font-bold py-12 px-8 rounded-xl transition duration-300 transform hover:scale-105">
+                    <div class="text-5xl mb-4">漢字</div>
+                    <div class="text-2xl">Kanji</div>
                 </button>
             </div>
             
@@ -183,7 +187,7 @@
             
             <div class="text-center mb-8">
                 <div class="text-8xl font-bold mb-8 text-gray-800" id="question-char">あ</div>
-                <p class="text-xl text-gray-600 mb-6">Bagaimana cara membaca huruf ini?</p>
+                <p class="text-xl text-gray-600 mb-6" id="question-prompt">Bagaimana cara membaca huruf ini?</p>
             </div>
             
             <div id="answer-options" class="grid grid-cols-2 gap-4">
@@ -412,7 +416,12 @@
             { name: 'M', chars: { 'ma': 'マ', 'mi': 'ミ', 'mu': 'ム', 'me': 'メ', 'mo': 'モ' } },
             { name: 'Y', chars: { 'ya': 'ヤ', 'yu': 'ユ', 'yo': 'ヨ' } },
             { name: 'R', chars: { 'ra': 'ラ', 'ri': 'リ', 'ru': 'ル', 're': 'レ', 'ro': 'ロ' } },
-            { name: 'W/N', chars: { 'wa': 'ワ', 'wo': 'ヲ', 'n': 'ン' } }
+            { name: 'W/N', chars: { 'wa': 'ワ', 'wo': 'ヲ', 'n': 'ン' } },
+            { name: 'G', chars: { 'ga': 'ガ', 'gi': 'ギ', 'gu': 'グ', 'ge': 'ゲ', 'go': 'ゴ' } },
+            { name: 'Z', chars: { 'za': 'ザ', 'ji': 'ジ', 'zu': 'ズ', 'ze': 'ゼ', 'zo': 'ゾ' } },
+            { name: 'D', chars: { 'da': 'ダ', 'dji': 'ヂ', 'dzu': 'ヅ', 'de': 'デ', 'do': 'ド' } },
+            { name: 'B', chars: { 'ba': 'バ', 'bi': 'ビ', 'bu': 'ブ', 'be': 'ベ', 'bo': 'ボ' } },
+            { name: 'P', chars: { 'pa': 'パ', 'pi': 'ピ', 'pu': 'プ', 'pe': 'ペ', 'po': 'ポ' } }
         ];
 
         const hiraganaChars = {};
@@ -420,6 +429,145 @@
         
         const katakanaChars = {};
         katakanaGroups.forEach(g => Object.assign(katakanaChars, g.chars));
+
+        const kanjiGroups = [
+            { name: 'Angka', chars: { 
+                'ichi': { kanji: '一', meaning: 'satu', reading: 'いち', romanji: 'ichi' },
+                'ni': { kanji: '二', meaning: 'dua', reading: 'に', romanji: 'ni' },
+                'san': { kanji: '三', meaning: 'tiga', reading: 'さん', romanji: 'san' },
+                'shi': { kanji: '四', meaning: 'empat', reading: 'し/よん', romanji: 'shi/yon' },
+                'go': { kanji: '五', meaning: 'lima', reading: 'ご', romanji: 'go' },
+                'roku': { kanji: '六', meaning: 'enam', reading: 'ろく', romanji: 'roku' },
+                'shichi': { kanji: '七', meaning: 'tujuh', reading: 'しち/なな', romanji: 'shichi/nana' },
+                'hachi': { kanji: '八', meaning: 'delapan', reading: 'はち', romanji: 'hachi' },
+                'kyuu': { kanji: '九', meaning: 'sembilan', reading: 'きゅう', romanji: 'kyuu' },
+                'juu': { kanji: '十', meaning: 'sepuluh', reading: 'じゅう', romanji: 'juu' },
+                'hyaku': { kanji: '百', meaning: 'seratus', reading: 'ひゃく', romanji: 'hyaku' },
+                'sen': { kanji: '千', meaning: 'seribu', reading: 'せん', romanji: 'sen' },
+                'man': { kanji: '万', meaning: 'sepuluh ribu', reading: 'まん', romanji: 'man' }
+            }},
+            { name: 'Waktu', chars: {
+                'nichi': { kanji: '日', meaning: 'hari/matahari', reading: 'にち/ひ', romanji: 'nichi/hi' },
+                'getsu': { kanji: '月', meaning: 'bulan', reading: 'げつ/つき', romanji: 'getsu/tsuki' },
+                'ka': { kanji: '火', meaning: 'api/selasa', reading: 'か/ひ', romanji: 'ka/hi' },
+                'sui': { kanji: '水', meaning: 'air/rabu', reading: 'すい/みず', romanji: 'sui/mizu' },
+                'moku': { kanji: '木', meaning: 'pohon/kamis', reading: 'もく/き', romanji: 'moku/ki' },
+                'kin': { kanji: '金', meaning: 'emas/jumat', reading: 'きん/かね', romanji: 'kin/kane' },
+                'do': { kanji: '土', meaning: 'tanah/sabtu', reading: 'ど/つち', romanji: 'do/tsuchi' },
+                'nen': { kanji: '年', meaning: 'tahun', reading: 'ねん/とし', romanji: 'nen/toshi' },
+                'ima': { kanji: '今', meaning: 'sekarang', reading: 'いま/こん', romanji: 'ima/kon' },
+                'hon': { kanji: '本', meaning: 'buku/asal', reading: 'ほん', romanji: 'hon' },
+                'jikan': { kanji: '時', meaning: 'waktu/jam', reading: 'じ/とき', romanji: 'ji/toki' },
+                'fun': { kanji: '分', meaning: 'menit/bagian', reading: 'ふん/ぶん', romanji: 'fun/bun' }
+            }},
+            { name: 'Manusia', chars: {
+                'hito': { kanji: '人', meaning: 'orang', reading: 'ひと/にん', romanji: 'hito/nin' },
+                'otoko': { kanji: '男', meaning: 'laki-laki', reading: 'おとこ/だん', romanji: 'otoko/dan' },
+                'onna': { kanji: '女', meaning: 'perempuan', reading: 'おんな/じょ', romanji: 'onna/jo' },
+                'ko': { kanji: '子', meaning: 'anak', reading: 'こ/し', romanji: 'ko/shi' },
+                'chichi': { kanji: '父', meaning: 'ayah', reading: 'ちち/ふ', romanji: 'chichi/fu' },
+                'haha': { kanji: '母', meaning: 'ibu', reading: 'はは/ぼ', romanji: 'haha/bo' },
+                'sei': { kanji: '生', meaning: 'hidup/lahir', reading: 'せい/いきる', romanji: 'sei/ikiru' },
+                'sensei': { kanji: '先', meaning: 'sebelum/guru', reading: 'せん/さき', romanji: 'sen/saki' },
+                'moku': { kanji: '目', meaning: 'mata', reading: 'め/もく', romanji: 'me/moku' },
+                'te': { kanji: '手', meaning: 'tangan', reading: 'て/しゅ', romanji: 'te/shu' },
+                'ashi': { kanji: '足', meaning: 'kaki', reading: 'あし/そく', romanji: 'ashi/soku' },
+                'kokoro': { kanji: '心', meaning: 'hati', reading: 'こころ/しん', romanji: 'kokoro/shin' }
+            }},
+            { name: 'Tempat', chars: {
+                'ue': { kanji: '上', meaning: 'atas', reading: 'うえ/じょう', romanji: 'ue/jou' },
+                'shita': { kanji: '下', meaning: 'bawah', reading: 'した/げ', romanji: 'shita/ge' },
+                'naka': { kanji: '中', meaning: 'dalam/tengah', reading: 'なか/ちゅう', romanji: 'naka/chuu' },
+                'soto': { kanji: '外', meaning: 'luar', reading: 'そと/がい', romanji: 'soto/gai' },
+                'mae': { kanji: '前', meaning: 'depan', reading: 'まえ/ぜん', romanji: 'mae/zen' },
+                'ushiro': { kanji: '後', meaning: 'belakang', reading: 'うしろ/ご', romanji: 'ushiro/go' },
+                'migi': { kanji: '右', meaning: 'kanan', reading: 'みぎ/う', romanji: 'migi/u' },
+                'hidari': { kanji: '左', meaning: 'kiri', reading: 'ひだり/さ', romanji: 'hidari/sa' },
+                'yama': { kanji: '山', meaning: 'gunung', reading: 'やま/さん', romanji: 'yama/san' },
+                'kawa': { kanji: '川', meaning: 'sungai', reading: 'かわ/せん', romanji: 'kawa/sen' },
+                'umi': { kanji: '海', meaning: 'laut', reading: 'うみ/かい', romanji: 'umi/kai' },
+                'kuni': { kanji: '国', meaning: 'negara', reading: 'くに/こく', romanji: 'kuni/koku' }
+            }},
+            { name: 'Sekolah', chars: {
+                'gaku': { kanji: '学', meaning: 'belajar', reading: 'がく/まなぶ', romanji: 'gaku/manabu' },
+                'kou': { kanji: '校', meaning: 'sekolah', reading: 'こう', romanji: 'kou' },
+                'sei': { kanji: '生', meaning: 'murid/hidup', reading: 'せい/いきる', romanji: 'sei/ikiru' },
+                'doku': { kanji: '読', meaning: 'membaca', reading: 'どく/よむ', romanji: 'doku/yomu' },
+                'sho': { kanji: '書', meaning: 'menulis', reading: 'しょ/かく', romanji: 'sho/kaku' },
+                'go': { kanji: '語', meaning: 'bahasa', reading: 'ご', romanji: 'go' },
+                'bun': { kanji: '文', meaning: 'kalimat/tulisan', reading: 'ぶん/もん', romanji: 'bun/mon' },
+                'moji': { kanji: '字', meaning: 'huruf/karakter', reading: 'じ', romanji: 'ji' },
+                'shiken': { kanji: '試', meaning: 'ujian/coba', reading: 'し/こころみる', romanji: 'shi/kokoromiru' },
+                'mon': { kanji: '問', meaning: 'pertanyaan', reading: 'もん/とう', romanji: 'mon/tou' }
+            }},
+            { name: 'Kata Kerja 1', chars: {
+                'miru': { kanji: '見', meaning: 'melihat', reading: 'み/けん', romanji: 'mi/ken' },
+                'kiku': { kanji: '聞', meaning: 'mendengar', reading: 'き/ぶん', romanji: 'ki/bun' },
+                'hanasu': { kanji: '話', meaning: 'berbicara', reading: 'はな/わ', romanji: 'hana/wa' },
+                'iku': { kanji: '行', meaning: 'pergi', reading: 'い/こう', romanji: 'i/kou' },
+                'kuru': { kanji: '来', meaning: 'datang', reading: 'く/らい', romanji: 'ku/rai' },
+                'kaeru': { kanji: '帰', meaning: 'pulang', reading: 'かえ/き', romanji: 'kae/ki' },
+                'deru': { kanji: '出', meaning: 'keluar', reading: 'で/しゅつ', romanji: 'de/shutsu' },
+                'hairu': { kanji: '入', meaning: 'masuk', reading: 'はい/にゅう', romanji: 'hai/nyuu' },
+                'tatsu': { kanji: '立', meaning: 'berdiri', reading: 'た/りつ', romanji: 'ta/ritsu' },
+                'suwaru': { kanji: '座', meaning: 'duduk', reading: 'すわ/ざ', romanji: 'suwa/za' }
+            }},
+            { name: 'Kata Kerja 2', chars: {
+                'taberu': { kanji: '食', meaning: 'makan', reading: 'た/しょく', romanji: 'ta/shoku' },
+                'nomu': { kanji: '飲', meaning: 'minum', reading: 'の/いん', romanji: 'no/in' },
+                'kau': { kanji: '買', meaning: 'membeli', reading: 'か/ばい', romanji: 'ka/bai' },
+                'uru': { kanji: '売', meaning: 'menjual', reading: 'う/ばい', romanji: 'u/bai' },
+                'tsukuru': { kanji: '作', meaning: 'membuat', reading: 'つく/さく', romanji: 'tsuku/saku' },
+                'yasumu': { kanji: '休', meaning: 'istirahat', reading: 'やす/きゅう', romanji: 'yasu/kyuu' },
+                'aruku': { kanji: '歩', meaning: 'berjalan', reading: 'ある/ほ', romanji: 'aru/ho' },
+                'hashiru': { kanji: '走', meaning: 'berlari', reading: 'はし/そう', romanji: 'hashi/sou' },
+                'tomaru': { kanji: '止', meaning: 'berhenti', reading: 'と/し', romanji: 'to/shi' },
+                'matsu': { kanji: '待', meaning: 'menunggu', reading: 'ま/たい', romanji: 'ma/tai' }
+            }},
+            { name: 'Ukuran & Jumlah', chars: {
+                'ookii': { kanji: '大', meaning: 'besar', reading: 'おお/だい', romanji: 'oo/dai' },
+                'chiisai': { kanji: '小', meaning: 'kecil', reading: 'ちい/しょう', romanji: 'chii/shou' },
+                'takai': { kanji: '高', meaning: 'tinggi/mahal', reading: 'たか/こう', romanji: 'taka/kou' },
+                'hikui': { kanji: '低', meaning: 'rendah', reading: 'ひく/てい', romanji: 'hiku/tei' },
+                'nagai': { kanji: '長', meaning: 'panjang', reading: 'なが/ちょう', romanji: 'naga/chou' },
+                'mijikai': { kanji: '短', meaning: 'pendek', reading: 'みじか/たん', romanji: 'mijika/tan' },
+                'hiroi': { kanji: '広', meaning: 'luas', reading: 'ひろ/こう', romanji: 'hiro/kou' },
+                'semai': { kanji: '狭', meaning: 'sempit', reading: 'せま/きょう', romanji: 'sema/kyou' },
+                'ooi': { kanji: '多', meaning: 'banyak', reading: 'おお/た', romanji: 'oo/ta' },
+                'sukunai': { kanji: '少', meaning: 'sedikit', reading: 'すく/しょう', romanji: 'suku/shou' }
+            }},
+            { name: 'Sifat', chars: {
+                'atarashii': { kanji: '新', meaning: 'baru', reading: 'あたら/しん', romanji: 'atara/shin' },
+                'furui': { kanji: '古', meaning: 'lama/tua', reading: 'ふる/こ', romanji: 'furu/ko' },
+                'hayai': { kanji: '早', meaning: 'cepat/pagi', reading: 'はや/そう', romanji: 'haya/sou' },
+                'osoi': { kanji: '遅', meaning: 'lambat/terlambat', reading: 'おそ/ち', romanji: 'oso/chi' },
+                'yoi': { kanji: '良', meaning: 'baik', reading: 'よ/りょう', romanji: 'yo/ryou' },
+                'warui': { kanji: '悪', meaning: 'buruk', reading: 'わる/あく', romanji: 'waru/aku' },
+                'tsuyoi': { kanji: '強', meaning: 'kuat', reading: 'つよ/きょう', romanji: 'tsuyo/kyou' },
+                'yowai': { kanji: '弱', meaning: 'lemah', reading: 'よわ/じゃく', romanji: 'yowa/jaku' },
+                'akarui': { kanji: '明', meaning: 'terang', reading: 'あか/めい', romanji: 'aka/mei' },
+                'kurai': { kanji: '暗', meaning: 'gelap', reading: 'くら/あん', romanji: 'kura/an' }
+            }},
+            { name: 'Warna & Alam', chars: {
+                'shiro': { kanji: '白', meaning: 'putih', reading: 'しろ/はく', romanji: 'shiro/haku' },
+                'kuro': { kanji: '黒', meaning: 'hitam', reading: 'くろ/こく', romanji: 'kuro/koku' },
+                'aka': { kanji: '赤', meaning: 'merah', reading: 'あか/せき', romanji: 'aka/seki' },
+                'ao': { kanji: '青', meaning: 'biru', reading: 'あお/せい', romanji: 'ao/sei' },
+                'ki': { kanji: '黄', meaning: 'kuning', reading: 'き/おう', romanji: 'ki/ou' },
+                'iro': { kanji: '色', meaning: 'warna', reading: 'いろ/しょく', romanji: 'iro/shoku' },
+                'hana': { kanji: '花', meaning: 'bunga', reading: 'はな/か', romanji: 'hana/ka' },
+                'kusa': { kanji: '草', meaning: 'rumput', reading: 'くさ/そう', romanji: 'kusa/sou' },
+                'ame': { kanji: '雨', meaning: 'hujan', reading: 'あめ/う', romanji: 'ame/u' },
+                'yuki': { kanji: '雪', meaning: 'salju', reading: 'ゆき/せつ', romanji: 'yuki/setsu' }
+            }}
+        ];
+
+        const kanjiChars = {};
+        kanjiGroups.forEach(g => {
+            Object.keys(g.chars).forEach(key => {
+                kanjiChars[key] = g.chars[key].kanji;
+            });
+        });
 
         let selectedType = '';
         let selectedChars = {};
@@ -470,6 +618,7 @@
                 lastPlayed: null,
                 hiraganaStats: { totalAttempts: 0, correctCount: 0, charDetails: {} },
                 katakanaStats: { totalAttempts: 0, correctCount: 0, charDetails: {} },
+                kanjiStats: { totalAttempts: 0, correctCount: 0, charDetails: {} },
                 sessionHistory: []
             };
         }
@@ -480,7 +629,14 @@
 
         function updateCharStats(type, romaji, isCorrect) {
             const stats = getStats();
-            const typeStats = type === 'hiragana' ? stats.hiraganaStats : stats.katakanaStats;
+            let typeStats;
+            if (type === 'hiragana') {
+                typeStats = stats.hiraganaStats;
+            } else if (type === 'katakana') {
+                typeStats = stats.katakanaStats;
+            } else if (type === 'kanji') {
+                typeStats = stats.kanjiStats;
+            }
             
             if (!typeStats.charDetails[romaji]) {
                 typeStats.charDetails[romaji] = { correct: 0, wrong: 0, lastSeen: null };
@@ -501,7 +657,14 @@
 
         function getWeakChars(type, limit = 5) {
             const stats = getStats();
-            const typeStats = type === 'hiragana' ? stats.hiraganaStats : stats.katakanaStats;
+            let typeStats;
+            if (type === 'hiragana') {
+                typeStats = stats.hiraganaStats;
+            } else if (type === 'katakana') {
+                typeStats = stats.katakanaStats;
+            } else if (type === 'kanji') {
+                typeStats = stats.kanjiStats;
+            }
             const charDetails = typeStats.charDetails;
             
             const charArray = Object.keys(charDetails)
@@ -519,7 +682,14 @@
 
         function getMasteredChars(type) {
             const stats = getStats();
-            const typeStats = type === 'hiragana' ? stats.hiraganaStats : stats.katakanaStats;
+            let typeStats;
+            if (type === 'hiragana') {
+                typeStats = stats.hiraganaStats;
+            } else if (type === 'katakana') {
+                typeStats = stats.katakanaStats;
+            } else if (type === 'kanji') {
+                typeStats = stats.kanjiStats;
+            }
             const charDetails = typeStats.charDetails;
             
             return Object.keys(charDetails)
@@ -560,7 +730,13 @@
 
         function selectType(type) {
             selectedType = type;
-            selectedChars = type === 'hiragana' ? {...hiraganaChars} : {...katakanaChars};
+            if (type === 'hiragana') {
+                selectedChars = {...hiraganaChars};
+            } else if (type === 'katakana') {
+                selectedChars = {...katakanaChars};
+            } else if (type === 'kanji') {
+                selectedChars = {...kanjiChars};
+            }
             
             $('#page-select-type').addClass('hidden');
             $('#page-select-chars').removeClass('hidden');
@@ -593,27 +769,38 @@
             const charSelection = $('#char-selection');
             charSelection.empty();
             
-            const groups = selectedType === 'hiragana' ? hiraganaGroups : katakanaGroups;
+            let groups;
+            if (selectedType === 'hiragana') {
+                groups = hiraganaGroups;
+            } else if (selectedType === 'katakana') {
+                groups = katakanaGroups;
+            } else if (selectedType === 'kanji') {
+                groups = kanjiGroups;
+            }
             
             groups.forEach((group, groupIndex) => {
                 const groupHtml = `
                     <div class="border-2 border-gray-200 rounded-lg p-4">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-bold text-gray-700">Baris ${group.name}</h3>
+                            <h3 class="text-lg font-bold text-gray-700">${selectedType === 'kanji' ? 'Grup' : 'Baris'} ${group.name}</h3>
                             <button onclick="toggleGroup(${groupIndex})" class="group-btn-${groupIndex} bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-200">
                                 Pilih Semua
                             </button>
                         </div>
                         <div class="grid grid-cols-3 sm:grid-cols-5 gap-3 group-${groupIndex}">
                             ${Object.keys(group.chars).map(romaji => {
-                                const char = group.chars[romaji];
+                                const charData = group.chars[romaji];
+                                const char = selectedType === 'kanji' ? charData.kanji : charData;
+                                const displayInfo = selectedType === 'kanji' 
+                                    ? `<div class="text-xs text-gray-600 mt-1">${charData.meaning}</div>`
+                                    : `<div class="text-sm font-semibold">${romaji}</div>`;
                                 return `
                                     <label class="char-label relative flex items-center justify-center p-4 border-2 border-gray-300 bg-white opacity-50 rounded-lg cursor-pointer hover:shadow-lg transition duration-200">
                                         <input type="checkbox" value="${romaji}" class="hidden char-checkbox">
                                         <div class="text-center">
                                             <div class="absolute top-1 right-1 text-green-600 text-xl checkmark" style="display:none;">✓</div>
-                                            <div class="text-3xl mb-2">${char}</div>
-                                            <div class="text-sm font-semibold">${romaji}</div>
+                                            <div class="text-3xl mb-1">${char}</div>
+                                            ${displayInfo}
                                         </div>
                                     </label>
                                 `;
@@ -1071,16 +1258,37 @@
             const question = quizData[currentQuestionIndex];
             $('#current-question').text(currentQuestionIndex + 1);
             $('#total-questions').text(quizData.length);
-            $('#question-char').text(question.char);
+            
+            if (selectedType === 'kanji') {
+                const kanjiData = kanjiGroups.flatMap(g => Object.entries(g.chars)).find(([key]) => key === question.correct);
+                if (kanjiData) {
+                    $('#question-char').html(`
+                        <div>${question.char}</div>
+                        <div class="text-2xl text-gray-600 mt-2">${kanjiData[1].reading}</div>
+                        <div class="text-lg text-gray-500 mt-1">(${kanjiData[1].romanji})</div>
+                    `);
+                    $('#question-prompt').text('Apa arti dari kanji ini?');
+                }
+            } else {
+                $('#question-char').text(question.char);
+                $('#question-prompt').text('Bagaimana cara membaca huruf ini?');
+            }
             
             const options = generateOptions(question.correct);
             const answerOptions = $('#answer-options');
             answerOptions.empty();
             
             options.forEach(option => {
+                let displayText = option;
+                if (selectedType === 'kanji') {
+                    const optionData = kanjiGroups.flatMap(g => Object.entries(g.chars)).find(([key]) => key === option);
+                    if (optionData) {
+                        displayText = optionData[1].meaning;
+                    }
+                }
                 answerOptions.append(`
                     <button onclick="checkAnswer('${option}', '${question.correct}')" class="answer-btn bg-gray-100 hover:bg-blue-100 text-gray-800 font-bold py-6 px-4 rounded-lg transition duration-200 text-xl">
-                        ${option}
+                        ${displayText}
                     </button>
                 `);
             });
@@ -1239,8 +1447,8 @@
             
             $('#stat-total-sessions').text(stats.totalSessions);
             
-            const totalAttempts = stats.hiraganaStats.totalAttempts + stats.katakanaStats.totalAttempts;
-            const totalCorrect = stats.hiraganaStats.correctCount + stats.katakanaStats.correctCount;
+            const totalAttempts = stats.hiraganaStats.totalAttempts + stats.katakanaStats.totalAttempts + stats.kanjiStats.totalAttempts;
+            const totalCorrect = stats.hiraganaStats.correctCount + stats.katakanaStats.correctCount + stats.kanjiStats.correctCount;
             const accuracy = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
             $('#stat-accuracy').text(accuracy + '%');
             
@@ -1266,6 +1474,7 @@
             const labels = sessions.map((s, i) => `Sesi ${i + 1}`);
             const hiraganaData = sessions.map(s => s.type === 'hiragana' ? s.score : null);
             const katakanaData = sessions.map(s => s.type === 'katakana' ? s.score : null);
+            const kanjiData = sessions.map(s => s.type === 'kanji' ? s.score : null);
             
             progressChart = new Chart(ctx, {
                 type: 'line',
@@ -1285,6 +1494,14 @@
                             data: katakanaData,
                             borderColor: 'rgb(168, 85, 247)',
                             backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                            tension: 0.3,
+                            spanGaps: true
+                        },
+                        {
+                            label: 'Kanji',
+                            data: kanjiData,
+                            borderColor: 'rgb(239, 68, 68)',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
                             tension: 0.3,
                             spanGaps: true
                         }
@@ -1315,7 +1532,8 @@
         function renderWeakAndMasteredChars() {
             const hiraganaWeak = getWeakChars('hiragana', 10);
             const katakanaWeak = getWeakChars('katakana', 10);
-            const allWeak = [...hiraganaWeak, ...katakanaWeak]
+            const kanjiWeak = getWeakChars('kanji', 10);
+            const allWeak = [...hiraganaWeak, ...katakanaWeak, ...kanjiWeak]
                 .sort((a, b) => a.accuracy - b.accuracy)
                 .slice(0, 5);
             
@@ -1334,7 +1552,8 @@
             
             const hiraganaGood = getMasteredChars('hiragana');
             const katakanaGood = getMasteredChars('katakana');
-            const allGood = [...hiraganaGood, ...katakanaGood]
+            const kanjiGood = getMasteredChars('kanji');
+            const allGood = [...hiraganaGood, ...katakanaGood, ...kanjiGood]
                 .sort((a, b) => b.accuracy - a.accuracy)
                 .slice(0, 5);
             
