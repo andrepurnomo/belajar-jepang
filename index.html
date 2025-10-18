@@ -114,6 +114,12 @@
             <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">Pilih Huruf untuk Latihan</h2>
             <p class="text-center text-gray-600 mb-8">Klik grup untuk memilih satu baris, atau centang manual (minimal 5):</p>
             
+            <div class="flex justify-center mb-6">
+                <button onclick="selectAllChars()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300 shadow-lg">
+                    ✓ Pilih Semua Huruf
+                </button>
+            </div>
+            
             <div id="weak-chars-banner" class="hidden bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4 mb-6">
                 <div class="flex justify-between items-center">
                     <div>
@@ -848,6 +854,17 @@
             }
         }
 
+        function selectAllChars() {
+            const allCheckboxes = $('.char-checkbox');
+            const allChecked = allCheckboxes.filter(':checked').length === allCheckboxes.length;
+            
+            if (allChecked) {
+                allCheckboxes.prop('checked', false).trigger('change');
+            } else {
+                allCheckboxes.prop('checked', true).trigger('change');
+            }
+        }
+
         function backToTypeSelection() {
             $('#page-select-chars').addClass('hidden');
             $('#page-select-type').removeClass('hidden');
@@ -878,7 +895,7 @@
                 allRomaji.push($(this).val());
             });
             
-            paragraphData = generateParagraph(allRomaji, 60);
+            paragraphData = generateParagraph(allRomaji, 100);
             paragraphCurrentIndex = 0;
             paragraphInput = '';
             paragraphCorrectCount = 0;
@@ -894,9 +911,21 @@
             setupParagraphInput();
         }
 
-        function generateParagraph(allRomaji, length = 60) {
+        function generateParagraph(allRomaji, length = 100) {
             const paragraph = [];
-            for (let i = 0; i < length; i++) {
+            
+            // Ensure all selected characters appear at least once
+            const shuffledRomaji = shuffleArray([...allRomaji]);
+            shuffledRomaji.forEach(romaji => {
+                paragraph.push({
+                    romaji: romaji,
+                    char: selectedChars[romaji],
+                    status: 'pending'
+                });
+            });
+            
+            // Fill the rest randomly up to the desired length
+            while (paragraph.length < length) {
                 const randomRomaji = allRomaji[Math.floor(Math.random() * allRomaji.length)];
                 paragraph.push({
                     romaji: randomRomaji,
@@ -904,7 +933,9 @@
                     status: 'pending'
                 });
             }
-            return paragraph;
+            
+            // Shuffle the entire paragraph to mix the guaranteed characters
+            return shuffleArray(paragraph);
         }
 
         function renderParagraph() {
@@ -998,6 +1029,12 @@
                 currentChar.status = 'wrong';
                 paragraphWrongCount++;
                 playWrongSound();
+                $('#paragraph-input').val('');
+                paragraphInput = '';
+                setTimeout(() => {
+                    currentChar.status = 'pending';
+                    renderParagraph();
+                }, 300);
                 renderParagraph();
             } else {
                 currentChar.status = 'pending';
